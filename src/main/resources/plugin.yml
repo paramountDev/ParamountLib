@@ -1,0 +1,58 @@
+name: ParamountLib
+version: '1.0'
+main: paramountDev.ParamountLib
+api-version: '1.21'
+
+authors: [ParamountDev]
+website: 'https://t.me/paramount1_dev'
+description: |
+  ╔══════════════════════════════
+  ║ ⚡ ParamountLib Core ⚡            
+  ╠══════════════════════════════
+  ║                                                  
+  ║  Ультимативная библиотека для разработки.       
+  ║                                                  
+  ║ [🔥] Основной функционал:                       
+  ║  • 🛠 GUI Редактор конфигураций (No-Reload)      
+  ║  • 🛠 Генератор Ресурспаков (RPGen System)      
+  ║  • 🛠 Schematic Engine (WorldEdit/FAWE)          
+  ║  • 🛠 Hex-цвета и Градиенты                     
+  ║                                                  
+  ║ [👨‍💻] Автор: ParamountDev                        
+  ║ [✈] Telegram: @paramount1_dev                   
+  ║                                                  
+  ╚═══════════════════════════════
+
+softdepend:
+  - WorldEdit
+  - FastAsyncWorldEdit
+
+commands:
+  pconfig:
+    description: Открывает GUI редактор конфигураций плагинов.
+    usage: '§cИспользование: §f/pconfig open <плагин>'
+    aliases: [paramountconfig, configeditor, configurator, pcfg]
+    permission: paramount.config.admin
+
+  rpgenerator:
+    description: Система генерации ресурспаков (RPGen).
+    usage: '§cИспользование: §f/rpgen help'
+    aliases: [rpgen, resourcepackgenerator, rpg]
+    permission: paramount.rpg.admin
+
+
+permissions:
+  paramount.*:
+    description: Полный доступ ко всем функциям ParamountLib.
+    default: op
+    children:
+      paramount.config.admin: true
+      paramount.rpg.admin: true
+
+  paramount.config.admin:
+    description: Доступ к редактору конфигов.
+    default: op
+
+  paramount.rpg.admin:
+    description: Доступ к генератору ресурспаков.
+    default: op
