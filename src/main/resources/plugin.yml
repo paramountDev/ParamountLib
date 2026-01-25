@@ -23,36 +23,3 @@ description: |
   ║                                                  
   ╚═══════════════════════════════
 
-softdepend:
-  - WorldEdit
-  - FastAsyncWorldEdit
-
-commands:
-  pconfig:
-    description: Открывает GUI редактор конфигураций плагинов.
-    usage: '§cИспользование: §f/pconfig open <плагин>'
-    aliases: [paramountconfig, configeditor, configurator, pcfg]
-    permission: paramount.config.admin
-
-  rpgenerator:
-    description: Система генерации ресурспаков (RPGen).
-    usage: '§cИспользование: §f/rpgen help'
-    aliases: [rpgen, resourcepackgenerator, rpg]
-    permission: paramount.rpg.admin
-
-
-permissions:
-  paramount.*:
-    description: Полный доступ ко всем функциям ParamountLib.
-    default: op
-    children:
-      paramount.config.admin: true
-      paramount.rpg.admin: true
-
-  paramount.config.admin:
-    description: Доступ к редактору конфигов.
-    default: op
-
-  paramount.rpg.admin:
-    description: Доступ к генератору ресурспаков.
-    default: op
