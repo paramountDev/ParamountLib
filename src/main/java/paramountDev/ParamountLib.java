@@ -33,8 +33,6 @@ public final class ParamountLib extends JavaPlugin {
     }
 
     private void setUpListeners() {
-        new TestEntityManager(this);
-
         new EntityManager(this);
         new InventoryManager(this);
         new ItemManager(this);
