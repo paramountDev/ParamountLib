@@ -1,23 +1,32 @@
 package paramountDev.lib.utils.entities;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
+import paramountDev.lib.managers.entities.EntityManager;
+import paramountDev.lib.utils.projectiles.ProjectileUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.function.Consumer;
@@ -30,7 +39,9 @@ public class EntityUtil {
     public static final String KEY_DROPS = "pdev_custom_drops";
     public static final String KEY_DEATH_SOUND = "pdev_death_sound";
     public static final String KEY_KILL_XP = "pdev_kill_xp";
-
+    public static final String KEY_ATTACK_DAMAGE = "pdev_attack_damage";
+    public static final String KEY_ATTACK_EFFECTS = "pdev_attack_effects";
+    public static final String KEY_ATTACK_ACTIONS = "pdev_attack_actions";
     public static final String KEY_BOSS_TITLE = "pdev_boss_title";
     public static final String KEY_BOSS_COLOR = "pdev_boss_color";
     public static final String KEY_BOSS_STYLE = "pdev_boss_style";
@@ -57,7 +68,12 @@ public class EntityUtil {
     }
 
     public static <T extends Entity> T spawn(Location location, Class<T> clazz) {
-        return spawn(location, clazz, e -> {});
+        return spawn(location, clazz, e -> {
+        });
+    }
+
+    public static void setData(Entity entity, Plugin plugin, String key, String value) {
+        entity.getPersistentDataContainer().set(new NamespacedKey(plugin, key), PersistentDataType.STRING, value);
     }
 
     public static class MobBuilder<T extends LivingEntity> {
@@ -82,6 +98,15 @@ public class EntityUtil {
         private Sound deathSound;
         private float deathSoundVolume = 1f;
         private float deathSoundPitch = 1f;
+        private String attackEffects = "";
+        private Double customAttackDamage;
+        private final List<String> actions = new ArrayList<>();
+
+        private record MobTask<T>(int interval, Consumer<T> task) {
+        }
+
+        private final List<MobTask<T>> mobTasks = new ArrayList<>();
+        private Consumer<T> deathHandler;
 
         public MobBuilder(Location location, Class<T> clazz) {
             this.location = location;
@@ -101,8 +126,22 @@ public class EntityUtil {
         }
 
         public MobBuilder<T> equipment(ItemStack hand, ItemStack offHand, ItemStack helmet, ItemStack chest, ItemStack legs, ItemStack boots) {
-            this.hand = hand; this.offHand = offHand;
-            this.helmet = helmet; this.chest = chest; this.legs = legs; this.boots = boots;
+            this.hand = hand;
+            this.offHand = offHand;
+            this.helmet = helmet;
+            this.chest = chest;
+            this.legs = legs;
+            this.boots = boots;
+            return this;
+        }
+
+        public MobBuilder<T> addAttackEffect(PotionEffectType type, int durationTicks, int amplifier) {
+            this.attackEffects += type.getName() + ";" + durationTicks + ";" + amplifier + "|";
+            return this;
+        }
+
+        public MobBuilder<T> attackDamage(double damage) {
+            this.customAttackDamage = damage;
             return this;
         }
 
@@ -149,6 +188,52 @@ public class EntityUtil {
             return this;
         }
 
+        public MobBuilder<T> addAttackAction(String actionName) {
+            this.actions.add(actionName);
+            return this;
+        }
+
+        public MobBuilder<T> addDeathAction(Consumer<T> handler) {
+            this.deathHandler = handler;
+            return this;
+        }
+
+        public MobBuilder<T> addRepeatingTask(int intervalTicks, Consumer<T> task) {
+            this.mobTasks.add(new MobTask<>(intervalTicks, task));
+            return this;
+        }
+
+        public MobBuilder<T> addVanillaProjectileTask(int interval, Class<? extends Projectile> clazz, double speed) {
+            return this.addRepeatingTask(interval, entity -> {
+                if (entity instanceof Mob mob) {
+                    LivingEntity target = mob.getTarget();
+                    if (target != null && target.isValid()) {
+                        ProjectileUtil.shootVanilla(entity, target, clazz, speed);
+                        entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_SKELETON_SHOOT, 1f, 1f);
+                    }
+                }
+            });
+        }
+
+        public MobBuilder<T> addBlockProjectileTask(int interval, Material material, float scaleX, float scaleY, float scaleZ, double speed, Consumer<ProjectileUtil.ProjectileHitContext> onHit) {
+            return this.addRepeatingTask(interval, entity -> {
+                if (entity instanceof Mob mob) {
+                    LivingEntity target = mob.getTarget();
+
+                    if (target == null) {
+                        target = entity.getNearbyEntities(15, 10, 15).stream()
+                                .filter(e -> e instanceof Player)
+                                .map(e -> (LivingEntity) e)
+                                .findFirst().orElse(null);
+                    }
+
+                    if (target != null && target.isValid()) {
+                        ProjectileUtil.shootBlock(entity, target, material, scaleX, scaleY, scaleZ, speed, onHit);
+                    }
+                }
+            });
+        }
+
         public T spawn(Plugin plugin) {
             T entity = EntityUtil.spawn(location, clazz);
             if (entity == null) return null;
@@ -192,6 +277,39 @@ public class EntityUtil {
                 String joinedLines = String.join(HOLO_SEPARATOR, hologramLines);
                 pdc.set(new NamespacedKey(plugin, KEY_HOLO_LINES), PersistentDataType.STRING, joinedLines);
                 pdc.set(new NamespacedKey(plugin, KEY_HOLO_HEIGHT), PersistentDataType.DOUBLE, hologramHeight);
+            }
+
+            if (!attackEffects.isEmpty()) {
+                pdc.set(new NamespacedKey(plugin, KEY_ATTACK_EFFECTS), PersistentDataType.STRING, attackEffects);
+            }
+
+            if (customAttackDamage != null) {
+                pdc.set(new NamespacedKey(plugin, KEY_ATTACK_DAMAGE), PersistentDataType.DOUBLE, customAttackDamage);
+            }
+
+            if (!actions.isEmpty()) {
+                entity.getPersistentDataContainer().set(
+                        new NamespacedKey(plugin, KEY_ATTACK_ACTIONS),
+                        PersistentDataType.STRING,
+                        String.join("|", actions)
+                );
+            }
+
+            if (deathHandler != null) {
+                EntityManager.registerDeathCallback(entity.getUniqueId(), (Consumer<LivingEntity>) deathHandler);
+            }
+
+            for (MobTask<T> mobTask : mobTasks) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (!entity.isValid() || entity.isDead()) {
+                            this.cancel();
+                            return;
+                        }
+                        mobTask.task().accept(entity);
+                    }
+                }.runTaskTimer(plugin, mobTask.interval(), mobTask.interval());
             }
 
             return entity;

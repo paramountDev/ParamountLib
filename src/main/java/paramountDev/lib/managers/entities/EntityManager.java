@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -23,6 +24,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import paramountDev.lib.utils.bossbars.BossBarUtil;
 import paramountDev.lib.utils.entities.EntityUtil;
 import paramountDev.lib.utils.sounds.SoundUtil;
@@ -31,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static paramountDev.lib.utils.messages.MessageUtil.color;
@@ -46,10 +52,35 @@ public class EntityManager implements Listener {
 
     private final Map<UUID, LivingEntity> activeBossEntities = new HashMap<>();
 
+    private static final Map<String, BiConsumer<LivingEntity, LivingEntity>> actionRegistry = new HashMap<>();
+    private static final Map<UUID, Consumer<LivingEntity>> deathCallbacks = new HashMap<>();
+
+    private static boolean isProcessingAction = false;
     public EntityManager(Plugin plugin) {
         this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
         startUpdateTask();
+
+        registerDefaultActions();
+    }
+
+    public static void registerAction(String name, BiConsumer<LivingEntity, LivingEntity> action) {
+        actionRegistry.put(name.toLowerCase(), action);
+    }
+
+    private void registerDefaultActions() {
+        registerAction("toss_up", (attacker, victim) -> {
+            victim.setVelocity(new Vector(0, 0.8, 0));
+        });
+
+        registerAction("knockback_huge", (attacker, victim) -> {
+            Vector dir = victim.getLocation().toVector().subtract(attacker.getLocation().toVector()).normalize();
+            victim.setVelocity(dir.multiply(2.0).setY(0.3));
+        });
+
+        registerAction("visual_explode", (attacker, victim) -> {
+            victim.getWorld().createExplosion(victim.getLocation(), 0f, false, false);
+        });
     }
 
     private void startUpdateTask() {
@@ -105,6 +136,12 @@ public class EntityManager implements Listener {
     public void onCustomMobDeath(EntityDeathEvent e) {
         LivingEntity entity = e.getEntity();
         PersistentDataContainer pdc = entity.getPersistentDataContainer();
+        UUID uuid = entity.getUniqueId();
+
+        if (deathCallbacks.containsKey(uuid)) {
+            deathCallbacks.get(uuid).accept(entity);
+            deathCallbacks.remove(uuid);
+        }
 
         NamespacedKey dropsKey = new NamespacedKey(plugin, EntityUtil.KEY_DROPS);
         if (pdc.has(dropsKey, PersistentDataType.STRING)) {
@@ -154,6 +191,60 @@ public class EntityManager implements Listener {
     public void onChunkUnload(ChunkUnloadEvent e) {
         for (Entity entity : e.getChunk().getEntities()) {
             removeBossData(entity.getUniqueId());
+        }
+    }
+
+
+    @EventHandler
+    public void onEntityAttack(EntityDamageByEntityEvent event) {
+        if (isProcessingAction) return;
+
+        if (!(event.getDamager() instanceof LivingEntity attacker)) return;
+        if (!(event.getEntity() instanceof LivingEntity victim)) return;
+
+        var pdc = attacker.getPersistentDataContainer();
+
+        NamespacedKey dmgKey = new NamespacedKey(plugin, EntityUtil.KEY_ATTACK_DAMAGE);
+        if (pdc.has(dmgKey, PersistentDataType.DOUBLE)) {
+            if(pdc.get(dmgKey, PersistentDataType.DOUBLE) != null) {
+                event.setDamage(pdc.get(dmgKey, PersistentDataType.DOUBLE));
+            }
+        }
+
+        NamespacedKey effectKey = new NamespacedKey(plugin, EntityUtil.KEY_ATTACK_EFFECTS);
+        if (pdc.has(effectKey, PersistentDataType.STRING)) {
+            String rawEffects = pdc.get(effectKey, PersistentDataType.STRING);
+            if (rawEffects != null) {
+                for (String entry : rawEffects.split("\\|")) {
+                    String[] parts = entry.split(";");
+                    if (parts.length == 3) {
+                        PotionEffectType type = PotionEffectType.getByName(parts[0]);
+                        if (type != null) {
+                            victim.addPotionEffect(new PotionEffect(type,
+                                    Integer.parseInt(parts[1]),
+                                    Integer.parseInt(parts[2])));
+                        }
+                    }
+                }
+            }
+        }
+        NamespacedKey actionsKey = new NamespacedKey(plugin, EntityUtil.KEY_ATTACK_ACTIONS);
+
+        if (pdc.has(actionsKey, PersistentDataType.STRING)) {
+            String rawActions = pdc.get(actionsKey, PersistentDataType.STRING);
+            if (rawActions != null) {
+
+                isProcessingAction = true;
+
+                try {
+                    for (String actionName : rawActions.split("\\|")) {
+                        var action = actionRegistry.get(actionName.toLowerCase());
+                        if (action != null) action.accept(attacker, victim);
+                    }
+                } finally {
+                    isProcessingAction = false;
+                }
+            }
         }
     }
 
@@ -218,5 +309,9 @@ public class EntityManager implements Listener {
             activeHolograms.remove(uuid);
             hologramHeights.remove(uuid);
         }
+    }
+
+    public static void registerDeathCallback(UUID uuid, Consumer<LivingEntity> callback) {
+        deathCallbacks.put(uuid, callback);
     }
 }

@@ -17,6 +17,10 @@ public class SoundUtil {
         play(player, sound, 1.0f, 1.0f);
     }
 
+    public static void play(Location location, Sound sound) {
+        play(location, sound, 1.0f, 1.0f);
+    }
+
     public static void play(Location location, Sound sound, float volume, float pitch) {
         if (location == null || location.getWorld() == null || sound == null) return;
         location.getWorld().playSound(location, sound, volume, pitch);

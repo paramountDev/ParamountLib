@@ -11,6 +11,29 @@ public class CooldownUtil {
 
     private static final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
 
+
+    public static boolean tryCooldown(UUID uuid, String key, double seconds) {
+        if (hasCooldown(uuid, key)) return false;
+        setCooldown(uuid, key, seconds);
+        return true;
+    }
+
+    public static void setCooldown(UUID uuid, String key, double seconds) {
+        cooldowns.computeIfAbsent(uuid, k -> new HashMap<>())
+                .put(key, System.currentTimeMillis() + (long) (seconds * 1000L));
+    }
+
+    public static boolean hasCooldown(UUID uuid, String key) {
+        if (!cooldowns.containsKey(uuid)) return false;
+        Map<String, Long> playerCooldowns = cooldowns.get(uuid);
+        if (!playerCooldowns.containsKey(key)) return false;
+        if (System.currentTimeMillis() >= playerCooldowns.get(key)) {
+            playerCooldowns.remove(key);
+            return false;
+        }
+        return true;
+    }
+
     public static boolean tryCooldown(Player player, String key, double seconds) {
         if (hasCooldown(player, key)) {
             return false;

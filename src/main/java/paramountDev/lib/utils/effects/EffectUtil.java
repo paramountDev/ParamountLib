@@ -153,4 +153,19 @@ public class EffectUtil {
         w.spawnParticle(Particle.SMOKE, loc, 50, 2, 2, 2, 0.1);
         w.spawnParticle(Particle.FLAME, loc, 50, 1, 1, 1, 0.2);
     }
+    public static Location getBezierPoint(Location start, Location control, Location end, double t) {
+        double invT = 1.0 - t;
+        double x = invT * invT * start.getX() + 2 * invT * t * control.getX() + t * t * end.getX();
+        double y = invT * invT * start.getY() + 2 * invT * t * control.getY() + t * t * end.getY();
+        double z = invT * invT * start.getZ() + 2 * invT * t * control.getZ() + t * t * end.getZ();
+        return new Location(start.getWorld(), x, y, z);
+    }
+    public static void playSummonFlash(Location loc) {
+        World w = loc.getWorld();
+        if (w == null) return;
+        w.spawnParticle(Particle.FLASH, loc.clone().add(0, 1, 0), 3);
+        w.spawnParticle(Particle.EXPLOSION_EMITTER, loc, 1);
+        w.spawnParticle(Particle.SOUL, loc.clone().add(0, 0.5, 0), 20, 0.5, 1, 0.5, 0.05);
+        drawCircle(loc.clone().add(0, 0.1, 0), 2.0f, Particle.SOUL_FIRE_FLAME);
+    }
 }
