@@ -1,5 +1,5 @@
 name: ParamountLib
-version: '1.0'
+version: '1.1'
 main: paramountDev.ParamountLib
 api-version: '1.21'
 

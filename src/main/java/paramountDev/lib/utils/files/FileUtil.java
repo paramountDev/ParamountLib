@@ -1,5 +1,6 @@
 package paramountDev.lib.utils.files;
 
+import org.bukkit.plugin.java.JavaPlugin;
 import paramountDev.ParamountLib;
 
 import java.io.File;
@@ -11,8 +12,8 @@ import java.util.List;
 
 public class FileUtil {
 
-    public static void createFolder(String name) {
-        File folder = new File(ParamountLib.getInstance().getDataFolder(), name);
+    public static void createFolder(JavaPlugin plugin, String name) {
+        File folder = new File(plugin.getDataFolder(), name);
         if (!folder.exists()) {
             folder.mkdirs();
         }
