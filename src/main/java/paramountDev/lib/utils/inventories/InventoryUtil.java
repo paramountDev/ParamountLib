@@ -21,6 +21,9 @@ import java.util.function.Consumer;
 import static paramountDev.lib.utils.messages.MessageUtil.color;
 import static paramountDev.lib.utils.messages.MessageUtil.sendMessageWithPrefix;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class InventoryUtil {
     public static Inventory create(String title, int rows, ItemStack... items) {
         if (rows < 1) rows = 1;

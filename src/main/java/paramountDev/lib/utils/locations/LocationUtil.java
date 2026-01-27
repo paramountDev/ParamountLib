@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class LocationUtil {
 
     public static String toString(Location loc) {

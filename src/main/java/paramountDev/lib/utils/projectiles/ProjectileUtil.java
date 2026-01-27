@@ -15,6 +15,9 @@ import paramountDev.lib.utils.effects.EffectUtil;
 
 import java.util.function.Consumer;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class ProjectileUtil {
 
     public record ProjectileHitContext(LivingEntity shooter, LivingEntity victim, Location location) {

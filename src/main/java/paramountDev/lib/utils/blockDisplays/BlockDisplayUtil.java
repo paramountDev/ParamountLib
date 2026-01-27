@@ -13,6 +13,9 @@ import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Consumer;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 @NullMarked
 public class BlockDisplayUtil {
 

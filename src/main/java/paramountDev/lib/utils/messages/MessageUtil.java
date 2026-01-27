@@ -22,6 +22,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class MessageUtil {
 
     private static JavaPlugin plugin;

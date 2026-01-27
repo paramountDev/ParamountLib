@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class WorldUtil {
 
     public static World load(String worldName) {

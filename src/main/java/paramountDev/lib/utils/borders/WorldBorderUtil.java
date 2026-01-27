@@ -6,6 +6,9 @@ import org.bukkit.WorldBorder;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class WorldBorderUtil {
 
     public static void set(World world, double x, double z, double size) {

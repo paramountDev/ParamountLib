@@ -6,6 +6,9 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class SoundUtil {
 
     public static void play(Player player, Sound sound, float volume, float pitch) {

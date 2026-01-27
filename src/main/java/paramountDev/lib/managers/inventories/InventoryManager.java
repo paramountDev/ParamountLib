@@ -9,6 +9,9 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.plugin.Plugin;
 import paramountDev.lib.utils.inventories.InventoryUtil;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class InventoryManager implements Listener {
 
     public InventoryManager(Plugin plugin) {

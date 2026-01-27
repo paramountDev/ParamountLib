@@ -41,6 +41,9 @@ import java.util.regex.Pattern;
 
 import static paramountDev.lib.utils.messages.MessageUtil.color;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class EntityManager implements Listener {
     private final Plugin plugin;
 

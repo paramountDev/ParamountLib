@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
 
 import static paramountDev.lib.utils.messages.MessageUtil.color;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class PlayerUtil {
 
     public static void forAll(Consumer<Player> action) {

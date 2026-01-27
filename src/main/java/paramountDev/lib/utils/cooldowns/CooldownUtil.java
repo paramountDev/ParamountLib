@@ -7,6 +7,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class CooldownUtil {
 
     private static final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();

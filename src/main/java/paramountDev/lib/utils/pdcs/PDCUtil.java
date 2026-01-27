@@ -9,6 +9,9 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class PDCUtil {
 
     public static ItemStack setString(Plugin plugin, ItemStack item, String key, String value) {

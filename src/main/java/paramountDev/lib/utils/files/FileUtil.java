@@ -10,6 +10,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class FileUtil {
 
     public static void createFolder(JavaPlugin plugin, String name) {

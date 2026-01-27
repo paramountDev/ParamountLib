@@ -17,6 +17,9 @@ import java.util.function.Consumer;
 
 import static paramountDev.lib.utils.messages.MessageUtil.color;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class BossBarUtil {
 
     private static final Map<BossBar, BukkitTask> activeTasks = new HashMap<>();

@@ -8,6 +8,9 @@ import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.util.Vector;
 
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class EffectUtil {
 
     public static void spawnColored(Location loc, int r, int g, int b, float size) {
