@@ -4,12 +4,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -20,6 +26,9 @@ import static paramountDev.lib.utils.messages.MessageUtil.color;
 // Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
 
 public class PlayerUtil {
+
+    private static final String FREEZE_KEY = "paramount_freeze_stand";
+    private static final String PRE_FREEZE_MODE = "paramount_pre_freeze_mode";
 
     public static void forAll(Consumer<Player> action) {
         Bukkit.getOnlinePlayers().forEach(action);
@@ -93,6 +102,65 @@ public class PlayerUtil {
     public static boolean isInsideRadius(Player player, org.bukkit.Location loc, double radius) {
         if (!player.getWorld().equals(loc.getWorld())) return false;
         return player.getLocation().distanceSquared(loc) <= (radius * radius);
+    }
+
+    public static void freezeCamera(Plugin plugin, Player player) {
+        if (player.hasMetadata(FREEZE_KEY)) {
+            return;
+        }
+
+        player.setMetadata(PRE_FREEZE_MODE, new FixedMetadataValue(plugin, player.getGameMode()));
+        player.setMetadata(FREEZE_KEY, new FixedMetadataValue(plugin, "PENDING"));
+
+        if (!player.isOnline()) return;
+
+        TextDisplay stand = (TextDisplay) player.getWorld().spawnEntity(player.getEyeLocation(), EntityType.TEXT_DISPLAY);
+        stand.setGravity(false);
+        stand.setInvulnerable(true);
+        stand.setMetadata(FREEZE_KEY, new FixedMetadataValue(plugin, player.getUniqueId()));
+
+        player.setGameMode(GameMode.SPECTATOR);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (!player.isOnline() || player.getGameMode() != GameMode.SPECTATOR) {
+                if (stand.isValid()) stand.remove();
+                return;
+            }
+
+            player.setSpectatorTarget(stand);
+            player.setMetadata(FREEZE_KEY, new FixedMetadataValue(plugin, stand.getUniqueId()));
+
+        }, 30L);
+    }
+
+    public static void unfreezeCamera(Plugin plugin, Player player) {
+        if (!player.hasMetadata(FREEZE_KEY)) return;
+
+        Object metadataValue = player.getMetadata(FREEZE_KEY).get(0).value();
+
+        if (metadataValue instanceof String && metadataValue.equals("PENDING")) {
+            player.removeMetadata(FREEZE_KEY, plugin);
+            player.removeMetadata(PRE_FREEZE_MODE, plugin);
+            return;
+        }
+
+        player.setSpectatorTarget(null);
+
+        if (metadataValue instanceof UUID standUuid) {
+            Entity stand = Bukkit.getEntity(standUuid);
+            if (stand != null) stand.remove();
+        }
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (player.hasMetadata(PRE_FREEZE_MODE)) {
+                player.setGameMode(GameMode.SURVIVAL);
+                player.removeMetadata(PRE_FREEZE_MODE, plugin);
+            } else {
+                player.setGameMode(GameMode.SURVIVAL);
+            }
+        }, 30L);
+
+        player.removeMetadata(FREEZE_KEY, plugin);
     }
 
     public static MassActionBuilder mass() {

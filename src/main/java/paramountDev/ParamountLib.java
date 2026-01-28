@@ -3,6 +3,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import paramountDev.lib.managers.entities.EntityManager;
 import paramountDev.lib.managers.inventories.InventoryManager;
 import paramountDev.lib.managers.items.ItemManager;
+import paramountDev.lib.managers.players.PlayerManager;
 import paramountDev.lib.utils.messages.MessageUtil;
 import static paramountDev.lib.utils.messages.MessageUtil.checkForAuthor;
 import static paramountDev.lib.utils.messages.MessageUtil.sendMessageToAllPlayersWithPermission;
@@ -33,6 +34,7 @@ public final class ParamountLib extends JavaPlugin {
         new EntityManager(this);
         new InventoryManager(this);
         new ItemManager(this);
+        new PlayerManager(this);
     }
     public static ParamountLib getInstance() {
         return instance;

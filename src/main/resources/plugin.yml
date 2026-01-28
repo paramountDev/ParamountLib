@@ -23,3 +23,5 @@ description: |
   ║                                                  
   ╚═══════════════════════════════
 
+softdepend: [ ProtocolLib ]
+
