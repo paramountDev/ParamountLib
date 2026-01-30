@@ -117,8 +117,6 @@ public class ItemUtil {
         private final ItemStack item;
         private final ItemMeta meta;
         private String customId;
-
-        // Хранилища действий
         private Consumer<PlayerInteractEvent> interactAction;
         private BiConsumer<Player, Entity> attackAction;
         private Consumer<BlockBreakEvent> breakAction;
@@ -239,7 +237,6 @@ public class ItemUtil {
                     NamespacedKey key = new NamespacedKey(plugin, KEY_ITEM_ID);
                     meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, customId);
 
-                    // Регистрируем действия в ItemListener
                     if (interactAction != null) ItemManager.registerInteract(customId, interactAction);
                     if (attackAction != null) ItemManager.registerAttack(customId, attackAction);
                     if (breakAction != null) ItemManager.registerBreak(customId, breakAction);

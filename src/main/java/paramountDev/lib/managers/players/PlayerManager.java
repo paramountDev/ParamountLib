@@ -14,6 +14,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import paramountDev.lib.utils.players.PlayerUtil;
 
+
+
+// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
+
 public class PlayerManager implements Listener {
 
     private final Plugin plugin;
