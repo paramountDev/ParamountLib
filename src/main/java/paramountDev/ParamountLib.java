@@ -5,6 +5,7 @@ import paramountDev.lib.managers.inventories.InventoryManager;
 import paramountDev.lib.managers.items.ItemManager;
 import paramountDev.lib.managers.players.PlayerManager;
 import paramountDev.lib.utils.messages.MessageUtil;
+
 import static paramountDev.lib.utils.messages.MessageUtil.checkForAuthor;
 import static paramountDev.lib.utils.messages.MessageUtil.sendMessageToAllPlayersWithPermission;
 import static paramountDev.lib.utils.messages.MessageUtil.sendSignatureToConsole;

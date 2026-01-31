@@ -59,9 +59,14 @@
             <id>enginehub</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
+        <repository>
+            <id>bettermodel-snapshot</id>
+            <url>https://maven.pkg.github.com/toxicity188/BetterModel</url>
+        </repository>
     </repositories>
 
     <dependencies>
+
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -73,6 +78,13 @@
             <groupId>net.dmulloy2</groupId>
             <artifactId>ProtocolLib</artifactId>
             <version>5.4.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>bettermodel</artifactId>
+            <version>1.14.2</version>
             <scope>provided</scope>
         </dependency>
 

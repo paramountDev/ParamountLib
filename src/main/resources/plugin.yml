@@ -23,5 +23,5 @@ description: |
   ║                                                  
   ╚═══════════════════════════════
 
-softdepend: [ ProtocolLib ]
+softdepend: [ProtocolLib, BetterModel]
 
