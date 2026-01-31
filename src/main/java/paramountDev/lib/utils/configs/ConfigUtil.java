@@ -2,6 +2,7 @@ package paramountDev.lib.utils.configs;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 import paramountDev.ParamountLib;
 
 import java.io.File;
@@ -16,29 +17,29 @@ import static paramountDev.lib.utils.messages.MessageUtil.color;
 
 public class ConfigUtil {
 
-    public static FileConfiguration load(String fileName) {
-        File file = new File(ParamountLib.getInstance().getDataFolder(), fileName);
+    public static FileConfiguration load(JavaPlugin plugin, String fileName) {
+        File file = new File(plugin.getDataFolder(), fileName);
 
         if (!file.exists()) {
             try {
-                ParamountLib.getInstance().saveResource(fileName, false);
+                plugin.saveResource(fileName, false);
             } catch (IllegalArgumentException e) {
                 try {
                     file.getParentFile().mkdirs();
                     file.createNewFile();
                 } catch (IOException ex) {
-                    ParamountLib.getInstance().getLogger().severe("Не удалось создать файл " + fileName);
+                    plugin.getLogger().severe("Не удалось создать файл " + fileName);
                 }
             }
         }
         return YamlConfiguration.loadConfiguration(file);
     }
 
-    public static void save(FileConfiguration config, String fileName) {
+    public static void save(JavaPlugin plugin, FileConfiguration config, String fileName) {
         try {
-            config.save(new File(ParamountLib.getInstance().getDataFolder(), fileName));
+            config.save(new File(plugin.getDataFolder(), fileName));
         } catch (IOException e) {
-            ParamountLib.getInstance().getLogger().severe("Не удалось сохранить файл " + fileName);
+            plugin.getLogger().severe("Не удалось сохранить файл " + fileName);
             e.printStackTrace();
         }
     }
