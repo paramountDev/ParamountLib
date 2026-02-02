@@ -32,5 +32,5 @@ public class FallbackModelHandler implements IModelHandler {
     public void stopAllAnimations(Entity entity, String modelId) {}
 
     @Override
-    public long getAnimationDuration(String modelId, String animationId) {}
+    public long getAnimationDuration(String modelId, String animationId) {return 0;}
 }
