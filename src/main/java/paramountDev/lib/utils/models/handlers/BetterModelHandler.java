@@ -81,7 +81,7 @@ public class BetterModelHandler implements IModelHandler {
         if (modelOpt.isPresent()) {
             var anim = modelOpt.get().animations().get(animationId);
             if (anim != null) {
-                return (long) (anim.length() * 50);
+                return (long) (anim.length() * 1000L);
             }
         }
         return 0;
