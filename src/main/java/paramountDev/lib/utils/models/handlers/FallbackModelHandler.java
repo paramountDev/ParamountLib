@@ -27,4 +27,10 @@ public class FallbackModelHandler implements IModelHandler {
     @Override
     public void updateAppearance(Entity entity, String modelId, boolean fixedBillboard, boolean enchanted, @Nullable Color tint) {
     }
+
+    @Override
+    public void stopAllAnimations(Entity entity, String modelId) {}
+
+    @Override
+    public long getAnimationDuration(String modelId, String animationId) {}
 }

@@ -35,7 +35,6 @@ public class BetterModelHandler implements IModelHandler {
 
         if (registryOpt.isPresent()) {
             var tracker = registryOpt.get().tracker(modelId);
-
             if (tracker != null) {
                 tracker.animate(animationId, modifier);
                 return true;
@@ -46,6 +45,42 @@ public class BetterModelHandler implements IModelHandler {
 
     @Override
     public void stopAnimation(Entity entity, String modelId, String animationId) {
+        var registryOpt = BetterModel.registry(entity);
+        if (registryOpt.isPresent()) {
+            var tracker = registryOpt.get().tracker(modelId);
+            if (tracker != null) {
+                tracker.animate(animationId, null);
+            }
+        }
+    }
+
+    @Override
+    public void stopAllAnimations(Entity entity, String modelId) {
+        var registryOpt = BetterModel.registry(entity);
+        var modelOpt = BetterModel.model(modelId);
+
+        if (registryOpt.isPresent() && modelOpt.isPresent()) {
+            var tracker = registryOpt.get().tracker(modelId);
+            var model = modelOpt.get();
+
+            if (tracker != null) {
+                for (String animId : model.animations().keySet()) {
+                    tracker.animate(animId, null);
+                }
+            }
+        }
+    }
+
+    @Override
+    public long getAnimationDuration(String modelId, String animationId) {
+        var modelOpt = BetterModel.model(modelId);
+        if (modelOpt.isPresent()) {
+            var anim = modelOpt.get().animations().get(animationId);
+            if (anim != null) {
+                return (long) (anim.length() * 50);
+            }
+        }
+        return 0;
     }
 
     @Override

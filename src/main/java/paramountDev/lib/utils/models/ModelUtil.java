@@ -1,12 +1,10 @@
 package paramountDev.lib.utils.models;
 
 import org.bukkit.entity.Entity;
+import paramountDev.lib.utils.models.handlers.BetterModelHandler;
 import paramountDev.lib.utils.models.handlers.ModelHook;
 
 import java.awt.*;
-
-
-// Copyright 2026 ParamountDev Licensed under the Apache License, Version 2.0
 
 public class ModelUtil {
 
@@ -24,6 +22,19 @@ public class ModelUtil {
 
     public static void stopAnimation(Entity entity, String modelId, String animId) {
         ModelHook.get().stopAnimation(entity, modelId, animId);
+    }
+
+    public static void stopAllAnimations(Entity entity, String modelId) {
+        if (ModelHook.get() instanceof BetterModelHandler handler) {
+            handler.stopAllAnimations(entity, modelId);
+        }
+    }
+
+    public static long getDuration(String modelId, String animId) {
+        if (ModelHook.get() instanceof BetterModelHandler handler) {
+            return handler.getAnimationDuration(modelId, animId);
+        }
+        return 2000;
     }
 
     public static void updateMeta(Entity entity, String modelId, boolean fixedBillboard, boolean enchanted) {
