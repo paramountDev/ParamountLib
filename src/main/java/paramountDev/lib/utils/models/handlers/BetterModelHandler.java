@@ -12,6 +12,11 @@ import java.awt.*;
 
 public class BetterModelHandler implements IModelHandler {
 
+    private static final AnimationModifier STOP_MODIFIER = AnimationModifier.builder()
+            .type(AnimationIterator.Type.PLAY_ONCE)
+            .speed(0.0f)
+            .build();
+
     @Override
     public boolean setModel(Entity entity, String modelId) {
         return BetterModel.model(modelId)
@@ -49,12 +54,11 @@ public class BetterModelHandler implements IModelHandler {
         if (registryOpt.isPresent()) {
             var tracker = registryOpt.get().tracker(modelId);
             if (tracker != null) {
-                tracker.animate(animationId, null);
+                tracker.animate(animationId, STOP_MODIFIER);
             }
         }
     }
 
-    @Override
     public void stopAllAnimations(Entity entity, String modelId) {
         var registryOpt = BetterModel.registry(entity);
         var modelOpt = BetterModel.model(modelId);
@@ -64,8 +68,8 @@ public class BetterModelHandler implements IModelHandler {
             var model = modelOpt.get();
 
             if (tracker != null) {
-                for (String animId : model.animations().keySet()) {
-                    tracker.animate(animId, null);
+                for (String anim : model.animations().keySet()) {
+                    tracker.animate(anim, STOP_MODIFIER);
                 }
             }
         }
